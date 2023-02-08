@@ -271,6 +271,20 @@ void LaunchConfig::parseString(const std::string& input, bool onlyArguments)
 		fmt::print("Loaded launch file in {:f}s\n", (ros::WallTime::now() - start).toSec());
 }
 
+void LaunchConfig::applyAutoIncrementSpawnDelayToAll(double autoIncrementSpawnDelay)
+{
+	ros::WallDuration currentDelay(0, 0);
+	const ros::WallDuration addDuration(autoIncrementSpawnDelay);
+
+	for(auto& node : m_nodes){
+		if(node->spawnDelay().isZero())
+		{
+			node->setSpawnDelay(currentDelay);
+			currentDelay += addDuration;
+		}
+	}
+}
+
 void LaunchConfig::parseTopLevelAttributes(TiXmlElement* element)
 {
 	const char* name = element->Attribute("rosmon-name");
